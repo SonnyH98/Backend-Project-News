@@ -1,5 +1,4 @@
 const db = require('../db/connection');
-const articles = require('../db/data/development-data/articles');
 
 exports.selectArticleById = async (id) => {
   const { rows: article } = await db.query(
