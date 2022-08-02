@@ -2,6 +2,7 @@ const topics = require('../db/data/development-data/topics.js');
 const {
   selectArticleById,
   updateArticleById,
+  selectArticles,
 } = require('../models/articles.model.js');
 
 exports.getArticleById = (req, res, next) => {
@@ -21,4 +22,10 @@ exports.patchArticleById = (req, res, next) => {
       res.status(200).send({ article: article[0] });
     })
     .catch(next);
+};
+
+exports.getArticles = (req, res, next) => {
+  selectArticles().then((articles) => {
+    res.status(200).send({ articles });
+  });
 };

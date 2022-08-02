@@ -40,7 +40,6 @@ describe('api/articles/:article_id', () => {
         .expect(200)
         .then(({ body }) => {
           const article = body.article;
-          console.log(body);
           expect(article).toEqual(
             expect.objectContaining({
               article_id: 1,
@@ -196,6 +195,42 @@ describe('api/users', () => {
               })
             );
           }
+        });
+    });
+  });
+});
+
+describe('api/articles', () => {
+  describe('GET - Successful Responses', () => {
+    test('status: 200 and responds with an array of article objects with the required properties', () => {
+      return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toHaveLength(12);
+          //check the article contains correct properties
+          articles.forEach((article) =>
+            expect(article).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                comment_count: expect.any(String),
+              })
+            )
+          );
+        });
+    });
+    test('Articles array is sorted in descending order by date', () => {
+      return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          console.log(articles);
+          expect(articles).toBeSortedBy('created_at', { descending: true });
         });
     });
   });
