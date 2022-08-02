@@ -2,11 +2,18 @@ const app = require('../app');
 const { TestWatcher } = require('jest');
 const { defaults } = require('pg');
 const request = require('supertest');
-//import in seed
+const seed = require('../db/seeds/seed');
 
 const db = require('../db/connection');
 const data = require('../db/data');
 
+afterAll(() => {
+  return db.end();
+});
+
+beforeEach(() => {
+  return seed(data);
+});
 describe('api/topics', () => {
   describe('GET - Successful responses', () => {
     test('status: 200 and responds with an array of topic objects with the properties slug and description', () => {
@@ -37,12 +44,12 @@ describe('api/articles/:article_id', () => {
           expect(article).toEqual(
             expect.objectContaining({
               article_id: 1,
-              title: 'Running a Node App',
-              topic: 'coding',
-              author: 'jessjelly',
-              body: 'This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.',
-              created_at: '2020-11-07T06:03:00.000Z',
-              votes: 0,
+              title: 'Living in the shadow of a great man',
+              topic: 'mitch',
+              author: 'butter_bridge',
+              body: 'I find this existence challenging',
+              created_at: '2020-07-09T20:11:00.000Z',
+              votes: 100,
             })
           );
         });
@@ -60,6 +67,88 @@ describe('api/articles/:article_id', () => {
     test('status:404 if valid id but non existent', () => {
       return request(app)
         .get('/api/articles/1000')
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Article not found!');
+        });
+    });
+  });
+  describe('PATCH - Successful Responses', () => {
+    test('should return status: 200 and respond with the updated article for positive votes increase', () => {
+      const update = {
+        inc_votes: '5',
+      };
+      const expected = {
+        article_id: 1,
+        title: 'Living in the shadow of a great man',
+        topic: 'mitch',
+        author: 'butter_bridge',
+        body: 'I find this existence challenging',
+        created_at: '2020-07-09T20:11:00.000Z',
+        votes: 105,
+      };
+      return request(app)
+        .patch('/api/articles/1')
+        .send(update)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toEqual(expected);
+        });
+    });
+    test('should return status: 200 and respond with the updated article for negative votes increase', () => {
+      const update = {
+        inc_votes: '-5',
+      };
+      const expected = {
+        article_id: 1,
+        title: 'Living in the shadow of a great man',
+        topic: 'mitch',
+        author: 'butter_bridge',
+        body: 'I find this existence challenging',
+        created_at: '2020-07-09T20:11:00.000Z',
+        votes: 95,
+      };
+      return request(app)
+        .patch('/api/articles/1')
+        .send(update)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toEqual(expected);
+        });
+    });
+  });
+  describe('PATCH - Error Responses', () => {
+    test('status:400 if invalid id request (Bad request)', () => {
+      const update = {
+        inc_votes: '5',
+      };
+      return request(app)
+        .patch('/api/articles/banana')
+        .send(update)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad request!');
+        });
+    });
+    test('status:400 for invalid votes input (Bad request)', () => {
+      const update = {
+        inc_votes: 'banana',
+      };
+      return request(app)
+        .patch('/api/articles/1')
+        .send(update)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad request!');
+        });
+    });
+    test('status:404 for valid article id but non-existent', () => {
+      const update = {
+        inc_votes: '5',
+      };
+      return request(app)
+        .patch('/api/articles/1000')
+        .send(update)
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe('Article not found!');
