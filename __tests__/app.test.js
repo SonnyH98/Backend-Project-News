@@ -50,7 +50,19 @@ describe('api/articles/:article_id', () => {
               body: 'I find this existence challenging',
               created_at: '2020-07-09T20:11:00.000Z',
               votes: 100,
-              //SQL returns the count as a string
+            })
+          );
+        });
+    });
+    test('Article contains a comment count property after model has been changed', () => {
+      return request(app)
+        .get('/api/articles/1')
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article;
+          console.log(body);
+          expect(article).toEqual(
+            expect.objectContaining({
               comment_count: expect.any(String),
             })
           );
