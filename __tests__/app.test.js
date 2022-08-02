@@ -54,6 +54,28 @@ describe('api/articles/:article_id', () => {
           );
         });
     });
+    test('Article contains a comment count property after model has been changed', () => {
+      return request(app)
+        .get('/api/articles/1')
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article;
+          console.log(body);
+          expect(article).toEqual(
+            expect.objectContaining({
+              comment_count: expect.any(String),
+            })
+          );
+        });
+    });
+    test('Comment count in article object responses with the correct number', () => {
+      return request(app)
+        .get('/api/articles/1')
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.comment_count).toBe('11');
+        });
+    });
   });
   describe('GET - Error responses', () => {
     test('status:400 if invalid id request (Bad request)', () => {
