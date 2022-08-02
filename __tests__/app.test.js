@@ -50,8 +50,18 @@ describe('api/articles/:article_id', () => {
               body: 'I find this existence challenging',
               created_at: '2020-07-09T20:11:00.000Z',
               votes: 100,
+              //SQL returns the count as a string
+              comment_count: expect.any(String),
             })
           );
+        });
+    });
+    test('Comment count in article object responses with the correct number', () => {
+      return request(app)
+        .get('/api/articles/1')
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.comment_count).toBe('11');
         });
     });
   });
