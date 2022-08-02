@@ -73,7 +73,7 @@ describe('api/articles/:article_id', () => {
         });
     });
   });
-  describe('POST - Successful Responses', () => {
+  describe('PATCH - Successful Responses', () => {
     test('should return status: 200 and respond with the updated article for positive votes increase', () => {
       const update = {
         inc_votes: '5',
@@ -117,7 +117,7 @@ describe('api/articles/:article_id', () => {
         });
     });
   });
-  describe('POST - Error Responses', () => {
+  describe('PATCH - Error Responses', () => {
     test('status:400 if invalid id request (Bad request)', () => {
       const update = {
         inc_votes: '5',
