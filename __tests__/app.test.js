@@ -235,3 +235,55 @@ describe('api/articles', () => {
     });
   });
 });
+
+describe('api/articles/:article_id/comments', () => {
+  describe('GET - Successful Responses', () => {
+    test('status: 200 and responds with an array of the comments for a given article with the required properties', () => {
+      return request(app)
+        .get('/api/articles/1/comments')
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toHaveLength(11);
+          comments.forEach((article) =>
+            expect(article).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                body: expect.any(String),
+                article_id: expect.any(Number),
+                author: expect.any(String),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+              })
+            )
+          );
+        });
+    });
+    test('status: 200 and responds with an empty array for valid articles with no comments', () => {
+      return request(app)
+        .get('/api/articles/2/comments')
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toHaveLength(0);
+        });
+    });
+    describe('GET - Error Responses', () => {
+      test('status: 400 when given an invalid id', () => {
+        return request(app)
+          .get('/api/articles/banana/comments')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Bad request!');
+          });
+      });
+      test('status: 404 and article not found message', () => {
+        return request(app)
+          .get('/api/articles/100/comments')
+          .expect(404)
+          .then(({ body }) => {
+            console.log(body);
+            expect(body.msg).toBe('Article not found!');
+          });
+      });
+    });
+  });
+});
