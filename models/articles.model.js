@@ -36,3 +36,27 @@ exports.selectArticles = async () => {
 
   return articles;
 };
+
+exports.selectCommentsByArticleId = async (id) => {
+  console.log(id);
+  const { rows: article } = await db.query(
+    `SELECT * from articles WHERE article_id = $1;`,
+    [id]
+  );
+
+  const { rows: comments } = await db.query(
+    `SELECT comments.* FROM comments
+    JOIN users on comments.author = users.username
+    WHERE article_id = $1;`,
+    [id]
+  );
+
+  if (article.length === 0) {
+    return Promise.reject({ status: 404, msg: 'Article not found!' });
+  }
+
+  if (comments.length === 0) {
+    return Promise.reject({ status: 404, msg: 'Comments not found!' });
+  }
+  return comments;
+};
