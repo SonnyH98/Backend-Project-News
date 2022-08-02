@@ -24,3 +24,15 @@ exports.updateArticleById = async (id, newVotes) => {
   }
   return updatedArticle;
 };
+
+exports.selectArticles = async () => {
+  const { rows: articles } = await db.query(
+    `SELECT users.username AS author, articles.title,articles.article_id, articles.topic,articles.created_at, articles.votes,  COUNT(comments.article_id) AS comment_count FROM articles
+    LEFT JOIN users on articles.author = users.username
+    FULL JOIN comments ON articles.article_id = comments.article_id 
+    GROUP BY users.username, articles.article_id
+    ORDER BY created_at DESC`
+  );
+
+  return articles;
+};
