@@ -156,3 +156,25 @@ describe('api/articles/:article_id', () => {
     });
   });
 });
+
+describe('api/users', () => {
+  describe('GET - Successful Responses', () => {
+    test.only('status: 200 and responds with an array of objects containing correct properties', () => {
+      return request(app)
+        .get('/api/users')
+        .expect(200)
+        .then(({ body: { users } }) => {
+          expect(users).toHaveLength(4);
+          for (let i = 0; i < users.length; i++) {
+            expect(users[i]).toEqual(
+              expect.objectContaining({
+                username: expect.any(String),
+                name: expect.any(String),
+                avatar_url: expect.any(String),
+              })
+            );
+          }
+        });
+    });
+  });
+});
