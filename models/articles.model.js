@@ -38,7 +38,6 @@ exports.selectArticles = async () => {
 };
 
 exports.selectCommentsByArticleId = async (id) => {
-  console.log(id);
   const { rows: article } = await db.query(
     `SELECT * from articles WHERE article_id = $1;`,
     [id]
@@ -55,8 +54,5 @@ exports.selectCommentsByArticleId = async (id) => {
     return Promise.reject({ status: 404, msg: 'Article not found!' });
   }
 
-  if (comments.length === 0) {
-    return Promise.reject({ status: 404, msg: 'Comments not found!' });
-  }
   return comments;
 };

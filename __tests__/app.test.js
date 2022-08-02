@@ -243,7 +243,6 @@ describe('api/articles/:article_id/comments', () => {
         .get('/api/articles/1/comments')
         .expect(200)
         .then(({ body: { comments } }) => {
-          console.log(comments);
           expect(comments).toHaveLength(11);
           comments.forEach((article) =>
             expect(article).toEqual(
@@ -259,32 +258,32 @@ describe('api/articles/:article_id/comments', () => {
           );
         });
     });
-  });
-  describe('GET - Error Responses', () => {
-    test('status: 400 when given an invalid id', () => {
-      return request(app)
-        .get('/api/articles/banana/comments')
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad request!');
-        });
-    });
-    test('status: 404 and comments not found message', () => {
+    test('status: 200 and responds with an empty array for valid articles with no comments', () => {
       return request(app)
         .get('/api/articles/2/comments')
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Comments not found!');
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toHaveLength(0);
         });
     });
-    test('status: 404 and article not found message', () => {
-      return request(app)
-        .get('/api/articles/100/comments')
-        .expect(404)
-        .then(({ body }) => {
-          console.log(body);
-          expect(body.msg).toBe('Article not found!');
-        });
+    describe('GET - Error Responses', () => {
+      test('status: 400 when given an invalid id', () => {
+        return request(app)
+          .get('/api/articles/banana/comments')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Bad request!');
+          });
+      });
+      test('status: 404 and article not found message', () => {
+        return request(app)
+          .get('/api/articles/100/comments')
+          .expect(404)
+          .then(({ body }) => {
+            console.log(body);
+            expect(body.msg).toBe('Article not found!');
+          });
+      });
     });
   });
 });
