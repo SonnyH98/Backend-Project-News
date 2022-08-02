@@ -10,3 +10,14 @@ exports.selectArticleById = async (id) => {
   }
   return article;
 };
+
+exports.updateArticleById = async (id, newVotes) => {
+  const { rows: updatedArticle } = await db.query(
+    'UPDATE articles SET votes = votes + $2 WHERE article_id = $1 RETURNING *;',
+    [id, newVotes]
+  );
+  if (updatedArticle.length === 0) {
+    return Promise.reject({ status: 404, msg: 'Article not found!' });
+  }
+  return updatedArticle;
+};
