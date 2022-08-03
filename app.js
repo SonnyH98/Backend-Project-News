@@ -4,6 +4,7 @@ const {
   patchArticleById,
   getArticles,
   getCommentsByArticleId,
+  postComment,
 } = require('./controllers/articles.controller');
 
 const { getUsers } = require('./controllers/users.controller');
@@ -24,13 +25,15 @@ app.patch('/api/articles/:article_id', patchArticleById);
 app.get('/api/users', getUsers);
 
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
+
+app.post('/api/articles/:article_id/comments', postComment);
 //Error handling
 app.all('*', (req, res) => {
   res.status(404).send({ msg: 'Bad Path!' });
 });
 
 app.use((err, req, res, next) => {
-  if (err.code === '22P02') {
+  if (err.code === '22P02' || err.code === '23503') {
     res.status(400).send({ msg: 'Bad request!' });
   } else next(err);
 });
