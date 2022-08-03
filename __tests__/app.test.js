@@ -287,3 +287,72 @@ describe('api/articles/:article_id/comments', () => {
     });
   });
 });
+
+describe('api/articles/:article_id/comments', () => {
+  describe('POST- Successful Responses', () => {
+    test('status:201 and endpoint responds with the added comment object', () => {
+      const newComment = {
+        username: 'butter_bridge',
+        body: 'This is a test review!',
+      };
+      const expected = {
+        comment_id: expect.any(Number),
+        body: 'This is a test review!',
+        article_id: 1,
+        author: 'butter_bridge',
+        votes: 0,
+        created_at: expect.any(String),
+      };
+      return request(app)
+        .post('/api/articles/1/comments')
+        .send(newComment)
+        .expect(201)
+        .then((res) => {
+          const newComment = res.body.newComment;
+
+          expect(newComment).toEqual(expected);
+        });
+    });
+  });
+  describe('POST- Error Responses', () => {
+    test('status:400 for invalid article id', () => {
+      const newComment = {
+        username: 'butter_bridge',
+        body: 'This is a test review!',
+      };
+      return request(app)
+        .post('/api/articles/banana/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad request!');
+        });
+    });
+    test('status:400 for non-existent article-id due to foreign key violation', () => {
+      const newComment = {
+        username: 'butter_bridge',
+        body: 'This is a test review!',
+      };
+      return request(app)
+        .post('/api/articles/1000/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad request!');
+        });
+    });
+    test('status:400 for invalid newComment username input', () => {
+      const newComment = {
+        username: 5,
+        body: 'This is a test review!',
+      };
+      return request(app)
+        .post('/api/articles/1/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad request!');
+        });
+    });
+  });
+});

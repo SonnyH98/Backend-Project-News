@@ -19,3 +19,5 @@ SELECT * FROM articles
 -- SELECT comments.* FROM comments
 -- JOIN users on comments.author = users.username
 -- WHERE article_id = 2
+
+-- INSERT into comments (body, author, article_id) VALUES ('This is a test review!','butter_bridge','1') RETURNING *;
