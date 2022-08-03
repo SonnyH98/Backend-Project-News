@@ -290,7 +290,7 @@ describe('api/articles/:article_id/comments', () => {
 
 describe('api/articles/:article_id/comments', () => {
   describe('POST- Successful Responses', () => {
-    test('status:201 and endpoint responds with the added restaurant object', () => {
+    test('status:201 and endpoint responds with the added comment object', () => {
       const newComment = {
         username: 'butter_bridge',
         body: 'This is a test review!',
@@ -298,7 +298,7 @@ describe('api/articles/:article_id/comments', () => {
       const expected = {
         comment_id: expect.any(Number),
         body: 'This is a test review!',
-        article_id: expect.any(Number),
+        article_id: 1,
         author: 'butter_bridge',
         votes: 0,
         created_at: expect.any(String),
@@ -309,7 +309,7 @@ describe('api/articles/:article_id/comments', () => {
         .expect(201)
         .then((res) => {
           const newComment = res.body.newComment;
-          console.log(res.body);
+
           expect(newComment).toEqual(expected);
         });
     });
@@ -328,13 +328,13 @@ describe('api/articles/:article_id/comments', () => {
           expect(body.msg).toBe('Bad request!');
         });
     });
-    test('status:400 for valid article_id input but non existent', () => {
+    test('status:400 for non-existent article-id due to foreign key violation', () => {
       const newComment = {
         username: 'butter_bridge',
         body: 'This is a test review!',
       };
       return request(app)
-        .post('/api/articles/100/comments')
+        .post('/api/articles/1000/comments')
         .send(newComment)
         .expect(400)
         .then(({ body }) => {

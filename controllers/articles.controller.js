@@ -49,8 +49,5 @@ exports.postComment = (req, res, next) => {
     .then((newComment) => {
       res.status(201).send({ newComment });
     })
-    .catch((err) => {
-      console.log(err);
-      next(err);
-    });
+    .catch(next);
 };
