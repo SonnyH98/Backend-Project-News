@@ -27,17 +27,13 @@ exports.patchArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  console.log(req.query);
-
   if (Object.keys(req.query).length > 0) {
-    console.log('a');
     if (
       req.query.hasOwnProperty('sort_by') ||
       req.query.hasOwnProperty('order_by') ||
       req.query.hasOwnProperty('topic')
     ) {
     } else {
-      console.log('here');
       return Promise.reject({ status: 400, msg: 'Misspelt query!' }).catch(
         next
       );
