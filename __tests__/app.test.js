@@ -409,6 +409,14 @@ describe('api/articles (queries)', () => {
           expect(body.msg).toBe('Bad sort by request!');
         });
     });
+    test('status:400 if sort by query is spelt incorrectly (Bad request)', () => {
+      return request(app)
+        .get('/api/articles?sortby=author')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Misspelt query!');
+        });
+    });
     test('status:400 if invalid order by request (Bad request)', () => {
       return request(app)
         .get('/api/articles?sort_by=author&order=banana')
@@ -417,12 +425,28 @@ describe('api/articles (queries)', () => {
           expect(body.msg).toBe('Bad order by request!');
         });
     });
+    test('status:400 if order by query is spelt incorrectly (Bad request)', () => {
+      return request(app)
+        .get('/api/articles?orderby=ASC')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Misspelt query!');
+        });
+    });
     test('status:404 if no articles exist with that topic', () => {
       return request(app)
         .get('/api/articles?topic=banana')
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe('No articles found!');
+        });
+    });
+    test('status:400 if topic query is spelt incorrectly (Bad request)', () => {
+      return request(app)
+        .get('/api/articles?topc=cats')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Misspelt query!');
         });
     });
   });
