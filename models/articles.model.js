@@ -44,9 +44,6 @@ exports.selectArticles = async (queries) => {
   if (typeof order_by === 'undefined') {
     order_by = 'DESC';
   }
-  console.log(sort_by);
-  console.log(order_by);
-  console.log(topic);
 
   const validSortBys = [
     'article_id',
