@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const { sort } = require('../db/data/development-data/topics');
 
 exports.selectArticleById = async (id) => {
   const { rows: article } = await db.query(
@@ -25,16 +26,65 @@ exports.updateArticleById = async (id, newVotes) => {
   return updatedArticle;
 };
 
-exports.selectArticles = async () => {
-  const { rows: articles } = await db.query(
-    `SELECT users.username AS author, articles.title,articles.article_id, articles.topic,articles.created_at, articles.votes,  COUNT(comments.article_id) AS comment_count FROM articles
-    LEFT JOIN users on articles.author = users.username
-    FULL JOIN comments ON articles.article_id = comments.article_id 
-    GROUP BY users.username, articles.article_id
-    ORDER BY created_at DESC`
-  );
+exports.selectArticles = async (queries) => {
+  const validQueries = ['topic', 'order', 'sort_by'];
+  for (key of Object.keys(queries)) {
+    if (validQueries.indexOf(key) === -1) {
+      return Promise.reject({ status: 400, msg: 'Invalid query!' });
+    }
+  }
 
-  return articles;
+  let sort_by = queries.sort_by;
+  let order_by = queries.order;
+  const topic = queries.topic;
+
+  if (typeof sort_by === 'undefined') {
+    sort_by = 'created_at';
+  }
+  if (typeof order_by === 'undefined') {
+    order_by = 'DESC';
+  }
+
+  const validSortBys = [
+    'article_id',
+    'title',
+    'topic',
+    'author',
+    'body',
+    'created_at',
+    'votes',
+  ];
+  const validOrderBys = ['ASC', 'asc', 'DESC', 'desc'];
+
+  let insertQuery = `SELECT users.username AS author, articles.title,articles.article_id, articles.topic,articles.created_at, articles.votes,  COUNT(comments.article_id) AS comment_count FROM articles
+  LEFT JOIN users on articles.author = users.username
+  FULL JOIN comments ON articles.article_id = comments.article_id`;
+
+  const injectArray = [];
+  if (topic) {
+    const { rows: topics } = await db.query(
+      `SELECT * FROM topics WHERE slug = $1`,
+      [topic]
+    );
+    if (topics.length === 0) {
+      return Promise.reject({ status: 404, msg: 'Topic doesnt exist!' });
+    }
+    insertQuery += ` WHERE TOPIC = $1`;
+    injectArray.push(topic);
+  }
+
+  insertQuery += ` GROUP BY users.username, articles.article_id
+  ORDER BY ${sort_by} ${order_by}`;
+
+  if (!validSortBys.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: 'Bad sort by request!' });
+  } else if (!validOrderBys.includes(order_by)) {
+    return Promise.reject({ status: 400, msg: 'Bad order by request!' });
+  } else {
+    const { rows: articles } = await db.query(insertQuery, injectArray);
+
+    return articles;
+  }
 };
 
 exports.selectCommentsByArticleId = async (id) => {

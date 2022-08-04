@@ -59,7 +59,6 @@ describe('api/articles/:article_id', () => {
         .expect(200)
         .then(({ body }) => {
           const article = body.article;
-          console.log(body);
           expect(article).toEqual(
             expect.objectContaining({
               comment_count: expect.any(String),
@@ -229,7 +228,6 @@ describe('api/articles', () => {
         .get('/api/articles')
         .expect(200)
         .then(({ body: { articles } }) => {
-          console.log(articles);
           expect(articles).toBeSortedBy('created_at', { descending: true });
         });
     });
@@ -280,7 +278,6 @@ describe('api/articles/:article_id/comments', () => {
           .get('/api/articles/100/comments')
           .expect(404)
           .then(({ body }) => {
-            console.log(body);
             expect(body.msg).toBe('Article not found!');
           });
       });
@@ -352,6 +349,123 @@ describe('api/articles/:article_id/comments', () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe('Bad request!');
+        });
+    });
+  });
+});
+
+describe('api/articles (queries)', () => {
+  describe('GET - Successful Responses', () => {
+    test('status:200 and default sorts the articles by date descending', () => {
+      return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy('created_at', { descending: true });
+        });
+    });
+    test('status:200 and sorts the articles by author when specified', () => {
+      return request(app)
+        .get('/api/articles?sort_by=author')
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy('author', { descending: true });
+        });
+    });
+    test('status:200 and sorts the articles in ascending order when specified', () => {
+      return request(app)
+        .get('/api/articles?sort_by=author&order=ASC')
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy('author');
+        });
+    });
+    test('status:200 and filters the articles by specified topic', () => {
+      return request(app)
+        .get('/api/articles?topic=cats')
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toHaveLength(1);
+          articles.forEach((article) =>
+            expect(article).toEqual(
+              expect.objectContaining({
+                topic: 'cats',
+              })
+            )
+          );
+        });
+    });
+    test('status:200 and empty array for valid topic with no articles', () => {
+      return request(app)
+        .get('/api/articles?topic=paper')
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toHaveLength(0);
+          articles.forEach((article) =>
+            expect(article).toEqual(
+              expect.objectContaining({
+                topic: 'paper',
+              })
+            )
+          );
+        });
+    });
+  });
+  describe('GET - Error Responses', () => {
+    test('status:400 if invalid sort by request (Bad request)', () => {
+      return request(app)
+        .get('/api/articles?sort_by=banana')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad sort by request!');
+        });
+    });
+    test('status:400 if sort by query is spelt incorrectly (Bad request)', () => {
+      return request(app)
+        .get('/api/articles?sortby=author')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Invalid query!');
+        });
+    });
+    test('status:400 if invalid order by request (Bad request)', () => {
+      return request(app)
+        .get('/api/articles?sort_by=author&order=banana')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad order by request!');
+        });
+    });
+    test('status:400 if order by query is spelt incorrectly (Bad request)', () => {
+      return request(app)
+        .get('/api/articles?orderby=ASC')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Invalid query!');
+        });
+    });
+    test('status:400 if topic query is spelt incorrectly (Bad request)', () => {
+      return request(app)
+        .get('/api/articles?topc=cats')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Invalid query!');
+        });
+    });
+    test('status:400 for more complex query involving one correct query and other misspelt ones)', () => {
+      return request(app)
+        .get('/api/articles?sort_by=author&grab_by=nothing&sortby=date')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Invalid query!');
+        });
+    });
+    test('status:404 for topics that dont exist)', () => {
+      return request(app)
+        .get('/api/articles?topic=banana')
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Topic doesnt exist!');
         });
     });
   });
