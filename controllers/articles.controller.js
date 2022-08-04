@@ -27,9 +27,14 @@ exports.patchArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  selectArticles().then((articles) => {
-    res.status(200).send({ articles });
-  });
+  const sort_by = req.query.sort_by;
+  const order_by = req.query.order;
+  const topic = req.query.topic;
+  selectArticles(sort_by, order_by, topic)
+    .then((articles) => {
+      res.status(200).send({ articles });
+    })
+    .catch(next);
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
