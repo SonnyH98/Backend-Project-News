@@ -27,22 +27,8 @@ exports.patchArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  if (Object.keys(req.query).length > 0) {
-    if (
-      req.query.hasOwnProperty('sort_by') ||
-      req.query.hasOwnProperty('order_by') ||
-      req.query.hasOwnProperty('topic')
-    ) {
-    } else {
-      return Promise.reject({ status: 400, msg: 'Misspelt query!' }).catch(
-        next
-      );
-    }
-  }
-  const sort_by = req.query.sort_by;
-  const order_by = req.query.order;
-  const topic = req.query.topic;
-  selectArticles(sort_by, order_by, topic)
+  console.log(req.query);
+  selectArticles(req.query)
     .then((articles) => {
       res.status(200).send({ articles });
     })

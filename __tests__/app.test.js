@@ -59,7 +59,6 @@ describe('api/articles/:article_id', () => {
         .expect(200)
         .then(({ body }) => {
           const article = body.article;
-          console.log(body);
           expect(article).toEqual(
             expect.objectContaining({
               comment_count: expect.any(String),
@@ -399,6 +398,22 @@ describe('api/articles (queries)', () => {
           );
         });
     });
+    test('status:200 and empty array for valid topic with no articles', () => {
+      return request(app)
+        .get('/api/articles?topic=paper')
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          console.log(articles);
+          expect(articles).toHaveLength(0);
+          articles.forEach((article) =>
+            expect(article).toEqual(
+              expect.objectContaining({
+                topic: 'paper',
+              })
+            )
+          );
+        });
+    });
   });
   describe('GET - Error Responses', () => {
     test('status:400 if invalid sort by request (Bad request)', () => {
@@ -414,7 +429,7 @@ describe('api/articles (queries)', () => {
         .get('/api/articles?sortby=author')
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe('Misspelt query!');
+          expect(body.msg).toBe('Invalid query!');
         });
     });
     test('status:400 if invalid order by request (Bad request)', () => {
@@ -430,15 +445,7 @@ describe('api/articles (queries)', () => {
         .get('/api/articles?orderby=ASC')
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe('Misspelt query!');
-        });
-    });
-    test('status:404 if no articles exist with that topic', () => {
-      return request(app)
-        .get('/api/articles?topic=banana')
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe('No articles found!');
+          expect(body.msg).toBe('Invalid query!');
         });
     });
     test('status:400 if topic query is spelt incorrectly (Bad request)', () => {
@@ -446,7 +453,23 @@ describe('api/articles (queries)', () => {
         .get('/api/articles?topc=cats')
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe('Misspelt query!');
+          expect(body.msg).toBe('Invalid query!');
+        });
+    });
+    test('status:400 for more complex query involving one correct query and other misspelt ones)', () => {
+      return request(app)
+        .get('/api/articles?sort_by=author&grab_by=nothing&sortby=date')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Invalid query!');
+        });
+    });
+    test('status:404 for topics that dont exist)', () => {
+      return request(app)
+        .get('/api/articles?topic=banana')
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Topic doesnt exist!');
         });
     });
   });

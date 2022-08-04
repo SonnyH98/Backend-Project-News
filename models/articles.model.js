@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const { sort } = require('../db/data/development-data/topics');
 
 exports.selectArticleById = async (id) => {
   const { rows: article } = await db.query(
@@ -25,11 +26,28 @@ exports.updateArticleById = async (id, newVotes) => {
   return updatedArticle;
 };
 
-exports.selectArticles = async (
-  sort_by = 'created_at',
-  order_by = 'desc',
-  topic
-) => {
+exports.selectArticles = async (queries) => {
+  const validQueries = ['topic', 'order', 'sort_by'];
+  for (key of Object.keys(queries)) {
+    if (validQueries.indexOf(key) === -1) {
+      return Promise.reject({ status: 400, msg: 'Invalid query!' });
+    }
+  }
+
+  let sort_by = queries.sort_by;
+  let order_by = queries.order;
+  const topic = queries.topic;
+
+  if (typeof sort_by === 'undefined') {
+    sort_by = 'created_at';
+  }
+  if (typeof order_by === 'undefined') {
+    order_by = 'DESC';
+  }
+  console.log(sort_by);
+  console.log(order_by);
+  console.log(topic);
+
   const validSortBys = [
     'article_id',
     'title',
@@ -47,6 +65,14 @@ exports.selectArticles = async (
 
   const injectArray = [];
   if (topic) {
+    const { rows: topics } = await db.query(
+      `SELECT * FROM topics WHERE slug = $1`,
+      [topic]
+    );
+    console.log(topics);
+    if (topics.length === 0) {
+      return Promise.reject({ status: 404, msg: 'Topic doesnt exist!' });
+    }
     insertQuery += ` WHERE TOPIC = $1`;
     injectArray.push(topic);
   }
@@ -60,10 +86,6 @@ exports.selectArticles = async (
     return Promise.reject({ status: 400, msg: 'Bad order by request!' });
   } else {
     const { rows: articles } = await db.query(insertQuery, injectArray);
-
-    if (articles.length === 0) {
-      return Promise.reject({ status: 404, msg: 'No articles found!' });
-    }
 
     return articles;
   }
