@@ -1,6 +1,4 @@
 const db = require('../db/connection');
-const { sort } = require('../db/data/development-data/topics');
-
 exports.selectArticleById = async (id) => {
   const { rows: article } = await db.query(
     `SELECT articles.*, COUNT(comments.article_id) AS comment_count  FROM articles 

@@ -470,3 +470,34 @@ describe('api/articles (queries)', () => {
     });
   });
 });
+
+describe('api/comments/:comment_id', () => {
+  describe('DELETE - Succesful Responses', () => {
+    test('status:204 and endpoint responds with an empty body', () => {
+      return request(app)
+        .delete('/api/comments/1')
+        .expect(204)
+        .then((res) => {
+          expect(res.body).toEqual({});
+        });
+    });
+  });
+  describe('DELETE - Error Responses', () => {
+    test('status:404 for valid comment_id but non-existent', () => {
+      return request(app)
+        .delete('/api/comments/1000')
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Comment not found!');
+        });
+    });
+    test('status:400 for invalid comment_id', () => {
+      return request(app)
+        .delete('/api/comments/banana')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad request!');
+        });
+    });
+  });
+});
