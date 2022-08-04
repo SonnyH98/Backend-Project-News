@@ -66,7 +66,6 @@ exports.selectArticles = async (queries) => {
       `SELECT * FROM topics WHERE slug = $1`,
       [topic]
     );
-    console.log(topics);
     if (topics.length === 0) {
       return Promise.reject({ status: 404, msg: 'Topic doesnt exist!' });
     }

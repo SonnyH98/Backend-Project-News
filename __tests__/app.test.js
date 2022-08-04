@@ -228,7 +228,6 @@ describe('api/articles', () => {
         .get('/api/articles')
         .expect(200)
         .then(({ body: { articles } }) => {
-          console.log(articles);
           expect(articles).toBeSortedBy('created_at', { descending: true });
         });
     });
@@ -279,7 +278,6 @@ describe('api/articles/:article_id/comments', () => {
           .get('/api/articles/100/comments')
           .expect(404)
           .then(({ body }) => {
-            console.log(body);
             expect(body.msg).toBe('Article not found!');
           });
       });
@@ -387,7 +385,6 @@ describe('api/articles (queries)', () => {
         .get('/api/articles?topic=cats')
         .expect(200)
         .then(({ body: { articles } }) => {
-          console.log(articles);
           expect(articles).toHaveLength(1);
           articles.forEach((article) =>
             expect(article).toEqual(
@@ -403,7 +400,6 @@ describe('api/articles (queries)', () => {
         .get('/api/articles?topic=paper')
         .expect(200)
         .then(({ body: { articles } }) => {
-          console.log(articles);
           expect(articles).toHaveLength(0);
           articles.forEach((article) =>
             expect(article).toEqual(
