@@ -10,6 +10,7 @@ const {
 const { getUsers } = require('./controllers/users.controller');
 const express = require('express');
 const { deleteComment } = require('./controllers/comments.controller');
+const { sendJSON } = require('./controllers/api-info.controller');
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.post('/api/articles/:article_id/comments', postComment);
 
 app.delete('/api/comments/:comment_id', deleteComment);
 
+app.get('/api', sendJSON);
 //Error handling
 app.all('*', (req, res) => {
   res.status(404).send({ msg: 'Bad Path!' });

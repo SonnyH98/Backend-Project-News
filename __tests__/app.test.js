@@ -501,3 +501,28 @@ describe('api/comments/:comment_id', () => {
     });
   });
 });
+
+describe('GET /api', () => {
+  test('status:200 and responds with JSON which has the correct keys', () => {
+    return request(app)
+      .get('/api')
+      .expect(200)
+      .then(({ body }) => {
+        expect(typeof body).toBe('object');
+        const validAPIs = [
+          'GET /api',
+          'GET /api/topics',
+          'GET /api/articles',
+          'GET /api/articles/:article_id',
+          'PATCH /api/articles/:article_id',
+          'GET /api/users',
+          'GET /api/articles/:article_id/comments',
+          'POST /api/articles/:article_id/comments',
+          'DELETE /api/comments/:comment_id',
+        ];
+        for (api in body) {
+          expect(validAPIs.indexOf(api)).not.toBe(-1);
+        }
+      });
+  });
+});
