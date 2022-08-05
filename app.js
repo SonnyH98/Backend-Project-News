@@ -10,7 +10,7 @@ const {
 const { getUsers } = require('./controllers/users.controller');
 const express = require('express');
 const { deleteComment } = require('./controllers/comments.controller');
-const { sendJSON } = require('./controllers/api-info.controller');
+
 const app = express();
 
 //commented this out for later use as will need it for post requests
