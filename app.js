@@ -13,9 +13,10 @@ const { deleteComment } = require('./controllers/comments.controller');
 const { sendJSON } = require('./controllers/api-info.controller');
 
 const app = express();
-
+const cors = require('cors');
 //commented this out for later use as will need it for post requests
 app.use(express.json());
+app.use(cors());
 
 app.get('/api/topics', getTopics);
 
