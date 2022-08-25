@@ -51,6 +51,7 @@ exports.selectArticles = async (queries) => {
     'body',
     'created_at',
     'votes',
+    'comment_count'
   ];
   const validOrderBys = ['ASC', 'asc', 'DESC', 'desc'];
 
